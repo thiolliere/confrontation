@@ -16,14 +16,14 @@ function love.load()
 		limit = 4
 	}
 	game = {
-		{name = "toto",	selected = false},
-		{name = "tato",	selected = false},
-		{name = "ttto",	selected = false},
-		{name = "tjto",	selected = false},
-		{name = "thto",	selected = false},
-		{name = "tbto",	selected = false},
-		{name = "tnto",	selected = false},
-		{name = "t,to",	selected = false},
+		{name = "toto",	selected = true},
+		{name = "tato",	selected = true},
+		{name = "ttto",	selected = true},
+		{name = "tjto",	selected = true},
+		{name = "thto",	selected = true},
+		{name = "tbto",	selected = true},
+		{name = "tnto",	selected = true},
+		{name = "t,to",	selected = true},
 	}
 	for i,_ in ipairs(game) do
 		game[i].buttonName = function()
@@ -35,10 +35,11 @@ function love.load()
 		end
 	end
 	menu = {
-		game = 5,
 		escape = function()
 			love.event.quit()
 		end,
+		{name = function() return "play" end
+		enter = function() state = next	end},
 		{name = function()
 			return "set number of player: "..player.nbr
 		end,
@@ -71,6 +72,7 @@ function love.load()
 			love.event.quit()
 		end}
 	}
+	menu.game = table.getn(menu) + 1
 	for i,v in ipairs(game) do
 		local t = {}
 		t.name = function() 
@@ -84,10 +86,21 @@ function love.load()
 end
 
 function love.update(dt)
-	print(game[1].selected)
 	if state == "game" then
 		confrontation.update(dt)
 	elseif state == "next" then
+		local selection = {}
+		for _,v in ipairs(game) do
+			if v.selected then
+				table.insert(selection,v.name)
+			end
+		end
+		local x = math.random(1,table.getn(selection))
+		confrontation.update = code[x].update
+		confrontation.draw = code[x].draw
+		confrontation.load = code[x].load
+		confrontation.load()
+		confrontation.update(dt)
 	end
 end
 
