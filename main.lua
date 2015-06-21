@@ -1,3 +1,7 @@
+code = {}
+
+require "gylpha.gylpha"
+
 function love.load()
 	love.keyboard.setKeyRepeat(true)
 	if not love.filesystem.exists("confrontation.conf.lua") then
@@ -16,14 +20,7 @@ function love.load()
 		limit = 4
 	}
 	game = {
-		{name = "toto",	selected = true},
-		{name = "tato",	selected = true},
-		{name = "ttto",	selected = true},
-		{name = "tjto",	selected = true},
-		{name = "thto",	selected = true},
-		{name = "tbto",	selected = true},
-		{name = "tnto",	selected = true},
-		{name = "t,to",	selected = true},
+		{name = "gylpha", selected = true},
 	}
 	for i,_ in ipairs(game) do
 		game[i].buttonName = function()
@@ -38,8 +35,8 @@ function love.load()
 		escape = function()
 			love.event.quit()
 		end,
-		{name = function() return "play" end
-		enter = function() state = next	end},
+		{name = function() return "play" end,
+		enter = function() state = "next" end},
 		{name = function()
 			return "set number of player: "..player.nbr
 		end,
@@ -83,6 +80,9 @@ function love.load()
 		end
 		table.insert(menu, t)
 	end
+	confrontation={}
+	confrontation.keypressed = function() end
+	confrontation.keyreleased = function() end
 end
 
 function love.update(dt)
@@ -95,10 +95,17 @@ function love.update(dt)
 				table.insert(selection,v.name)
 			end
 		end
-		local x = math.random(1,table.getn(selection))
+		local x = selection[math.random(1,table.getn(selection))]
 		confrontation.update = code[x].update
 		confrontation.draw = code[x].draw
+		if code[x].keyreleased then
+			confrontation.keyreleased = code[x].keyreleased
+		end
+		if code[x].keypressed then
+			confrontation.keypressed = code[x].keypressed
+		end
 		confrontation.load = code[x].load
+		state = "game"
 		confrontation.load()
 		confrontation.update(dt)
 	end
@@ -151,6 +158,9 @@ function love.draw()
 end
 
 function love.keypressed(key, isrepeat)
+	if key == keymap.quit then
+		love.event.quit()
+	end
 	if state == "game" then
 		confrontation.keypressed(key, isrepeat)
 	elseif state == "menu" then
@@ -173,5 +183,11 @@ function love.keypressed(key, isrepeat)
 		elseif key=="escape" then
 			menu.escape()
 		end
+	end
+end
+
+function love.keyreleased(key, isrepeat)
+	if state =="game" then
+		confrontation.keyreleased(key, isrepeat)
 	end
 end
