@@ -30,11 +30,11 @@ function configure()
 		key = " "
 	}
 	keymap[2]={
-		up = scan("z"),
+		up = scan("w"),
 		down = scan("s"),
-		left = scan("q"),
+		left = scan("a"),
 		right = scan("d"),
-		key = scan("a")
+		key = scan("q")
 	}
 	keymap[3]={
 		up = "up",
