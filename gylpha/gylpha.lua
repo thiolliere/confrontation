@@ -11,11 +11,23 @@ function code.gylpha.load()
 		{0,255,255},
 	}
 	position = {
-		{x = 10, y = 20},
-		{x = 30, y = 20},
-		{x = 50, y = 20},
-		{x = 70, y = 20},
+		{x = 10, y = 25},
+		{x = 25, y = 55},
+		{x = 55, y = 55},
+		{x = 70, y = 25},
 	}
+	wall = {
+		{x = 40, y = 1, w = 50, h = 2}
+		, {x = 40, y = 59, w = 50, h = 2}
+		, {x = 12.5, y = 30, w = 25, h = 4}
+		, {x = 80-12.5, y = 30, w = 25, h = 4}
+	}
+	for i,v in ipairs(wall) do
+		v.body = love.physics.newBody(world, v.x, v.y, "static")
+		v.shape = love.physics.newRectangleShape(v.w, v.h)
+		v.fixture = love.physics.newFixture(v.body, v.shape)
+		v.fixture:setUserData({type = "wall", object = wall[i]})
+	end
 	character={}
 	width = 2
 	height = 1
@@ -94,6 +106,10 @@ end
 
 function code.gylpha.draw()
 	love.graphics.scale(10,10)
+	for _,v in ipairs(wall) do
+		love.graphics.setColor(125, 125, 125)
+		love.graphics.polygon("fill", v.body:getWorldPoints(v.shape:getPoints()))
+	end
 	for i=1,player.nbr do
 		if character[i].body:isActive() then
 			local c = character[i].color
