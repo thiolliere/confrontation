@@ -2,7 +2,7 @@ code.gylpha = {}
 
 function code.gylpha.load()
 	love.keyboard.setKeyRepeat(false)
-	world = love.physics.newWorld(0, 70, true)
+	world = love.physics.newWorld(0, 70, false)
 	world:setCallbacks( gylphaBeginContact)
 	color = {
 		{255,0,0},
@@ -33,13 +33,41 @@ function code.gylpha.load()
 		character[i].orientation = "right"
 	end
 	impulse = 0.7
+	contactImpulse = 0.5
 	force = 2
 	damageWidth = 3/4
 	damageHeight = 1/4
 end
 
 function code.gylpha.update(dt)
+	setInactive = {}
+	doImpulse = {}
 	world:update(dt)
+	for _,v in ipairs(doImpulse) do
+		if v.type == "up" then
+			v.body:applyLinearImpulse(0, -contactImpulse)
+		elseif v.type == "down" then
+			v.body:applyLinearImpulse(0, contactImpulse)
+		elseif v.type == "left" then
+			v.body:applyLinearImpulse(-contactImpulse, 0)
+		elseif v.type == "right" then
+			v.body:applyLinearImpulse(contactImpulse, 0)
+		end
+	end
+
+	for _,v in ipairs(setInactive) do
+		v.body:setActive(false)
+	end
+	local counter = 0
+	for i = 1, player.nbr do
+		if character[i].body:isActive() then
+			counter = counter + 1
+		end
+	end
+	if counter <= 1 then
+		gylphaNewGame()
+	end
+
 	for i=1,player.nbr do
 		if character[i].body:isActive() then
 			if character[i].body:getX() > 80 then
@@ -98,21 +126,57 @@ end
 function gylphaBeginContact(a, b, coll)
 	ua,ub = a:getUserData(), b:getUserData()
 	if ua.type == "character" and ub.type == "character" then
-		local ca = ua.object
-		local cb = ub.object
-		local oa = ca.orientation
-		local ob = cb.orientation
 		local collax,collay,collbx,collby = coll:getPositions()
-		if collax == collbx then
-			if collay > collby then
+		if collay == collby then
+			local sup,inf
+			if ua.object.body:getY() > ub.object.body:getY() then
+				sup = ua.object
+				inf = ub.object
 			else
+				sup = ub.object
+				inf = ua.object
+			end
+			table.insert(doImpulse,{body = sup.body, type = "up"})
+			table.insert(doImpulse,{body = inf.body, type = "down"})
+			if (sup.orientation == "right" 
+				and ((sup.body:getX() - inf.body:getX()) < width*damageWidth))
+				or (sup.orientation == "left"
+				and ((sup.body:getX() - inf.body:getX()) > -width*damageWidth)) then
+				table.insert(setInactive,inf)
 			end
 		else
-			if collax > collbx then
+			local left,right
+			if ua.object.body:getX() > ub.object.body:getX() then
+				right = ua.object
+				left = ub.object
 			else
+				right = ub.object
+				left = ua.object
+			end
+			table.insert(doImpulse,{body = left.body, type = "left"})
+			table.insert(doImpulse,{body = right.body, type = "right"})
+			if left.orientation == "left" and right.orientation == "left" then
+				if (left.body:getY() - right.body:getY()) < height*0.25 then
+					table.insert(setInactive,right)
+				end
+			elseif left.orientation == "right" and right.orientation == "right" then
+				if (right.body:getY() - left.body:getY()) < height*0.25 then
+					table.insert(setInactive,right)
+				end
+			elseif left.orientation == "right" and right.orientation == "left" then
+				local sup,inf
+				if ua.object.body:getY() > ub.object.body:getY() then
+					sup = ua.object
+					inf = ub.object
+				else
+					sup = ub.object
+					inf = ua.object
+				end
+				if (sup.body:getY() - inf.body:getY()) > 0.25 then
+					table.insert(setInactive,right)
+				end
 			end
 		end
-
 	elseif (ua.type == "character" and ub.type == "pike") or (ua.type == "pike" and ub.type == "character") then
 		local char
 		if ua.type == "character" then
@@ -120,16 +184,7 @@ function gylphaBeginContact(a, b, coll)
 		else
 			char = ub.object
 		end
-		char.body:setAtive(false)
-		local counter = 0
-		for i = 1, player.nbr do
-			if character[i].body:isActive() then
-				counter = counter + 1
-			end
-		end
-		if counter <= 1 then
-			gylphaNewGame()
-		end
+		table.insert(setInactive,char)
 	end
 end
 
