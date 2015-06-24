@@ -29,8 +29,8 @@ function code.gylpha.load()
 		v.fixture:setUserData({type = "wall", object = wall[i]})
 	end
 	character={}
-	width = 2
-	height = 1
+	width = 3
+	height = 1.5
 	local damping = 1
 	for i=1,player.nbr do
 		character[i]={}
@@ -43,10 +43,11 @@ function code.gylpha.load()
 		character[i].fixture:setUserData({type = "character", object = character[i]})
 		character[i].color = color[i]
 		character[i].orientation = "right"
+		character[i].number = i
 	end
-	impulse = 0.7
-	contactImpulse = 0.5
-	force = 2
+	impulse = 1.0
+	contactImpulse = 0.7
+	force = 3
 	damageWidth = 3/4
 	damageHeight = 1/4
 end
@@ -68,6 +69,7 @@ function code.gylpha.update(dt)
 	end
 
 	for _,v in ipairs(setInactive) do
+		score[v.number] = score[v.number] - 1
 		v.body:setActive(false)
 	end
 	local counter = 0
@@ -215,4 +217,5 @@ end
 
 function code.gylpha.close()
 	love.keyboard.setKeyRepeat(true)
+	world:destroy()
 end

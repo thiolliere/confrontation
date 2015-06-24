@@ -1,6 +1,7 @@
 code = {}
 
 require "gylpha.gylpha"
+require "rope.rope"
 
 function love.load()
 	love.keyboard.setKeyRepeat(true)
@@ -20,7 +21,8 @@ function love.load()
 		limit = 4
 	}
 	game = {
-		{name = "gylpha", selected = true},
+		{name = "gylpha", selected = false},
+		{name = "rope", selected = true},
 	}
 	for i,_ in ipairs(game) do
 		game[i].buttonName = function()
@@ -83,6 +85,8 @@ function love.load()
 	confrontation={}
 	confrontation.keypressed = function() end
 	confrontation.keyreleased = function() end
+
+	score = {0,0,0,0}
 end
 
 function love.update(dt)
@@ -100,9 +104,13 @@ function love.update(dt)
 		confrontation.draw = code[x].draw
 		if code[x].keyreleased then
 			confrontation.keyreleased = code[x].keyreleased
+		else
+			confrontation.keyreleased = function() end
 		end
 		if code[x].keypressed then
 			confrontation.keypressed = code[x].keypressed
+		else
+			confrontation.keypressed = function() end
 		end
 		confrontation.load = code[x].load
 		state = "game"
@@ -155,6 +163,8 @@ function love.draw()
 			dw = dw + (love.window.getWidth()-topleft.width)/2
 		end
 	end
+	love.graphics.printf("joueur 1 :"..score[1],0,0,1000,"left")
+	love.graphics.printf("joueur 2 :"..score[2],800-font:getWidth("joueur 2 :"..score[2]),0,1000,"left")
 end
 
 function love.keypressed(key, isrepeat)
@@ -187,7 +197,7 @@ function love.keypressed(key, isrepeat)
 end
 
 function love.keyreleased(key, isrepeat)
-	if state =="game" then
+	if state == "game" then
 		confrontation.keyreleased(key, isrepeat)
 	end
 end
