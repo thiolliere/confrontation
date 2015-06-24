@@ -21,8 +21,8 @@ function love.load()
 		limit = 4
 	}
 	game = {
-		{name = "gylpha", selected = false},
-		{name = "rope", selected = true},
+		{name = "gylpha", selected = true},
+		{name = "rope", selected = false},
 	}
 	for i,_ in ipairs(game) do
 		game[i].buttonName = function()
@@ -99,7 +99,8 @@ function love.update(dt)
 				table.insert(selection,v.name)
 			end
 		end
-		local x = selection[math.random(1,table.getn(selection))]
+		local r = math.random(1,table.getn(selection))
+		local x = selection[r]
 		confrontation.update = code[x].update
 		confrontation.draw = code[x].draw
 		if code[x].keyreleased then
@@ -163,6 +164,7 @@ function love.draw()
 			dw = dw + (love.window.getWidth()-topleft.width)/2
 		end
 	end
+	love.graphics.origin()
 	love.graphics.printf("joueur 1 :"..score[1],0,0,1000,"left")
 	love.graphics.printf("joueur 2 :"..score[2],800-font:getWidth("joueur 2 :"..score[2]),0,1000,"left")
 end

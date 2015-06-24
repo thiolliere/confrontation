@@ -1,8 +1,11 @@
 code.gylpha = {}
 
 function code.gylpha.load()
+	numberOfGame = 0
+	limitOfGame = 5
 	love.keyboard.setKeyRepeat(false)
-	world = love.physics.newWorld(0, 70, false)
+	love.physics.setMeter(10)
+	world = love.physics.newWorld(0, 700, false)
 	world:setCallbacks( gylphaBeginContact)
 	color = {
 		{255,0,0},
@@ -11,16 +14,16 @@ function code.gylpha.load()
 		{0,255,255},
 	}
 	position = {
-		{x = 10, y = 25},
-		{x = 25, y = 55},
-		{x = 55, y = 55},
-		{x = 70, y = 25},
+		{x = 100, y = 250},
+		{x = 700, y = 250},
+		{x = 550, y = 550},
+		{x = 250, y = 550},
 	}
 	wall = {
-		{x = 40, y = 1, w = 50, h = 2}
-		, {x = 40, y = 59, w = 50, h = 2}
-		, {x = 12.5, y = 30, w = 25, h = 4}
-		, {x = 80-12.5, y = 30, w = 25, h = 4}
+		{x = 400, y = 10, w = 500, h = 20}
+		, {x = 400, y = 590, w = 500, h = 20}
+		, {x = 125, y = 300, w = 250, h = 40}
+		, {x = 800-125, y = 300, w = 250, h = 40}
 	}
 	for i,v in ipairs(wall) do
 		v.body = love.physics.newBody(world, v.x, v.y, "static")
@@ -29,8 +32,8 @@ function code.gylpha.load()
 		v.fixture:setUserData({type = "wall", object = wall[i]})
 	end
 	character={}
-	width = 3
-	height = 1.5
+	width = 30
+	height = 15
 	local damping = 1
 	for i=1,player.nbr do
 		character[i]={}
@@ -45,9 +48,9 @@ function code.gylpha.load()
 		character[i].orientation = "right"
 		character[i].number = i
 	end
-	impulse = 1.0
-	contactImpulse = 0.7
-	force = 3
+	impulse = 10000
+	contactImpulse = 7000
+	force = 30000
 	damageWidth = 3/4
 	damageHeight = 1/4
 end
@@ -79,20 +82,25 @@ function code.gylpha.update(dt)
 		end
 	end
 	if counter <= 1 then
+		numberOfGame = numberOfGame + 1
+		if numberOfGame >= limitOfGame then
+			code.gylpha.close()
+			return
+		end
 		gylphaNewGame()
 	end
 
 	for i=1,player.nbr do
 		if character[i].body:isActive() then
-			if character[i].body:getX() > 80 then
+			if character[i].body:getX() > 800 then
 				character[i].body:setX(0)
 			elseif character[i].body:getX() < 0 then
-				character[i].body:setX(80)
+				character[i].body:setX(800)
 			end
-			if character[i].body:getY() > 60 then
+			if character[i].body:getY() > 600 then
 				character[i].body:setY(0)
 			elseif character[i].body:getY() < 0 then
-				character[i].body:setY(60)
+				character[i].body:setY(600)
 			end
 			if love.keyboard.isDown(keymap[i].left) then
 				character[i].body:applyForce(-force, 0)
@@ -107,7 +115,6 @@ function code.gylpha.update(dt)
 end
 
 function code.gylpha.draw()
-	love.graphics.scale(10,10)
 	for _,v in ipairs(wall) do
 		love.graphics.setColor(125, 125, 125)
 		love.graphics.polygon("fill", v.body:getWorldPoints(v.shape:getPoints()))
@@ -124,11 +131,11 @@ function code.gylpha.draw()
 				o = -1
 			end
 			love.graphics.polygon("fill"
-		  		, cx + o* width*(1/2 - damageWidth)	, 	cy + height*(1/2 - damageHeight)
-		  		, cx + o*width*(1/2 - damageWidth)	, 	cy + height*(1/2)
-		  		, cx + o*width*(1/2)			, 	cy + height*(1/2)
-		  		, cx + o*width*(1/2)			, 	cy + height*(1/2 - damageHeight)
-		  		)
+			 , cx + o* width*(1/2 - damageWidth)	, 	cy + height*(1/2 - damageHeight)
+			 , cx + o*width*(1/2 - damageWidth)	, 	cy + height*(1/2)
+			 , cx + o*width*(1/2)			, 	cy + height*(1/2)
+			 , cx + o*width*(1/2)			, 	cy + height*(1/2 - damageHeight)
+			 )
 		end
 	end
 end
@@ -157,9 +164,9 @@ function gylphaBeginContact(a, b, coll)
 			table.insert(doImpulse,{body = sup.body, type = "up"})
 			table.insert(doImpulse,{body = inf.body, type = "down"})
 			if (sup.orientation == "right" 
-				and ((sup.body:getX() - inf.body:getX()) < width*damageWidth))
+       and ((sup.body:getX() - inf.body:getX()) < width*damageWidth))
 				or (sup.orientation == "left"
-				and ((sup.body:getX() - inf.body:getX()) > -width*damageWidth)) then
+	and ((sup.body:getX() - inf.body:getX()) > -width*damageWidth)) then
 				table.insert(setInactive,inf)
 			end
 		else
@@ -216,6 +223,7 @@ function gylphaNewGame()
 end
 
 function code.gylpha.close()
+	state = "next"
 	love.keyboard.setKeyRepeat(true)
 	world:destroy()
 end
