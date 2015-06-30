@@ -3,7 +3,7 @@ function configure()
 	local height = 600              -- The window height (number)
 	local flags = {}
 	flags.borderless = false        -- Remove all border visuals from the window (boolean)
-	flags.resizable = false         -- Let the window be user-resizable (boolean)
+	flags.resizable = true          -- Let the window be user-resizable (boolean)
 	flags.minwidth = 1              -- Minimum window width if the window is resizable (number)
 	flags.minheight = 1             -- Minimum window height if the window is resizable (number)
 	flags.fullscreen = false        -- Enable fullscreen (boolean)

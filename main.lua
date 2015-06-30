@@ -124,10 +124,19 @@ function love.draw()
 	if state == "game" then
 		confrontation.draw()
 	elseif state == "menu" then
-		love.graphics.printf("Confrontation",love.window.getWidth()/3,love.window.getHeight()/5,0,"center",0,10/2,9/2)
+		love.graphics.scale(love.window.getWidth()/800, love.window.getHeight()/600)
+		love.graphics.printf("Confrontation",800/3,600/5,0,"center",0,10/2,9/2)
 
-		local dh = love.window.getHeight()/2.5
-		local dw = love.window.getWidth()/2.5
+		love.graphics.printf("use up, down, left, right in the menu\n"..
+			"Edit the configuration in the user directory :\n"..
+			"Linux: $XDG_DATA_HOME/love/ or ~/.local/share/love/\n"..
+			"Windows XP: C:\\Documents and Settings\\user\\Application Data\\LOVE\\ or %appdata%\\LOVE\\\n"..
+			"Windows Vista and 7: C:\\Users\\user\\AppData\\Roaming\\LOVE or %appdata%\\LOVE\\\n"..
+			"Mac: /Users/user/Library/Application Support/LOVE/"
+		       ,800/4,600*3/4,500,"center",0,1,1)
+
+		local dh = 600/2.5
+		local dw = 800/2.5
 		for i=1,menu.game-1 do
 			local name = menu[i].name()
 			local scale = 1
@@ -140,9 +149,9 @@ function love.draw()
 		border = font:getHeight()*10
 		local topleft={}
 		topleft.height = border
-		local gameInHeight = math.floor((love.window.getHeight() - border - topleft.height)/font:getHeight())
+		local gameInHeight = math.floor((600 - border - topleft.height)/font:getHeight())
 		local gameInWidth = math.ceil(table.getn(game)/gameInHeight)
-		topleft.width = love.window.getWidth()*3/4
+		topleft.width = 800*3/4
 		dh = topleft.height
 		dw = topleft.width
 		i = menu.game
@@ -161,10 +170,11 @@ function love.draw()
 				i = i + 1
 			end
 			dh = topleft.height
-			dw = dw + (love.window.getWidth()-topleft.width)/2
+			dw = dw + (800-topleft.width)/2
 		end
 	end
 	love.graphics.origin()
+	love.graphics.scale(love.window.getWidth()/800, love.window.getHeight()/600)
 	love.graphics.printf("joueur 1 :"..score[1],0,0,1000,"left")
 	love.graphics.printf("joueur 2 :"..score[2],800-font:getWidth("joueur 2 :"..score[2]),0,1000,"left")
 end

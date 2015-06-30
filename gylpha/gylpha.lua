@@ -115,6 +115,7 @@ function code.gylpha.update(dt)
 end
 
 function code.gylpha.draw()
+	love.graphics.scale(love.window.getWidth()/800, love.window.getHeight()/600)
 	for _,v in ipairs(wall) do
 		love.graphics.setColor(125, 125, 125)
 		love.graphics.polygon("fill", v.body:getWorldPoints(v.shape:getPoints()))
@@ -154,7 +155,7 @@ function gylphaBeginContact(a, b, coll)
 		local collax,collay,collbx,collby = coll:getPositions()
 		if collay == collby then
 			local sup,inf
-			if ua.object.body:getY() > ub.object.body:getY() then
+			if ua.object.body:getY() < ub.object.body:getY() then
 				sup = ua.object
 				inf = ub.object
 			else
@@ -164,9 +165,9 @@ function gylphaBeginContact(a, b, coll)
 			table.insert(doImpulse,{body = sup.body, type = "up"})
 			table.insert(doImpulse,{body = inf.body, type = "down"})
 			if (sup.orientation == "right" 
-       and ((sup.body:getX() - inf.body:getX()) < width*damageWidth))
+ 			        and ((sup.body:getX() - inf.body:getX()) < width*damageWidth))
 				or (sup.orientation == "left"
-	and ((sup.body:getX() - inf.body:getX()) > -width*damageWidth)) then
+				and ((sup.body:getX() - inf.body:getX()) > -width*damageWidth)) then
 				table.insert(setInactive,inf)
 			end
 		else
@@ -182,7 +183,7 @@ function gylphaBeginContact(a, b, coll)
 			table.insert(doImpulse,{body = right.body, type = "right"})
 			if left.orientation == "left" and right.orientation == "left" then
 				if (left.body:getY() - right.body:getY()) < height*0.25 then
-					table.insert(setInactive,right)
+					table.insert(setInactive,left)
 				end
 			elseif left.orientation == "right" and right.orientation == "right" then
 				if (right.body:getY() - left.body:getY()) < height*0.25 then
@@ -198,7 +199,7 @@ function gylphaBeginContact(a, b, coll)
 					inf = ua.object
 				end
 				if (sup.body:getY() - inf.body:getY()) > 0.25 then
-					table.insert(setInactive,right)
+					table.insert(setInactive,inf)
 				end
 			end
 		end
